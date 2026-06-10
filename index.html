@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <title>BangladeshStream - BDTV | Free Live Bangladeshi TV Channels</title>
+    <meta name="description" content="Watch 50+ live Bangladeshi, live Bengali TV channels, sports, news, and movies for free on BangladeshStream TV. High-quality auto-fallback streaming.">
+    <meta name="keywords" content="Live TV Bangladesh, Bangla Live TV, BD Live TV, Free IPTV, Watch TV Online, BTV, Somoy TV, Star Jalsha Live, Zee Bangla Live, HD Bangla TV">
+    <meta name="author" content="BangladeshStream TV">
+    <meta name="robots" content="index, follow">
+    
+    <meta property="og:title" content="BangladeshStream TV | HD Bengali Live TV">
+    <meta property="og:description" content="Watch all your favorite Bangladeshi and Bengali channels live online for free.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="YOUR_WEBSITE_URL_HERE">
+    <meta property="og:image" content="YOUR_SOCIAL_SHARE_IMAGE_LINK_HERE">
+    
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📺</text></svg>">
+    
+    <link rel="manifest" href="YOUR_WEB_APP_MANIFEST_LINK_HERE">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Noto+Sans+Bengali:wght@400;600&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --panel-bg: #111827;
+            --hover-bg: #1f2937;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --border: #1f2937;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', 'Noto Sans Bengali', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+            flex-direction: row;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            width: 320px;
+            background-color: var(--panel-bg);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border);
+            box-shadow: 2px 0 15px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        .app-brand {
+            padding: 20px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: linear-gradient(180deg, rgba(31,41,55,1) 0%, rgba(17,24,39,1) 100%);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand-icon {
+            font-size: 1.8rem;
+            filter: drop-shadow(0 0 8px rgba(59, 130, 246, 0.6));
+        }
+
+        .brand-text {
+            font-size: 1.25rem;
+            font-weight: 600;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .search-container {
+            padding: 15px;
+            background-color: var(--panel-bg);
+            border-bottom: 1px solid var(--border);
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--hover-bg);
+            color: var(--text-main);
+            outline: none;
+            font-size: 0.95rem;
+            transition: border 0.3s, box-shadow 0.3s;
+        }
+
+        #searchInput:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+        }
+
+        #searchInput::placeholder {
+            color: var(--text-muted);
+        }
+
+        .channel-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            scroll-behavior: smooth;
+        }
+
+        /* Custom Scrollbar */
+        .channel-list::-webkit-scrollbar { width: 6px; }
+        .channel-list::-webkit-scrollbar-track { background: var(--panel-bg); }
+        .channel-list::-webkit-scrollbar-thumb { background-color: #374151; border-radius: 10px; }
+        .channel-list::-webkit-scrollbar-thumb:hover { background-color: var(--primary); }
+
+        .channel-item {
+            padding: 12px 15px;
+            margin-bottom: 8px;
+            background-color: transparent;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .channel-item:hover {
+            background-color: var(--hover-bg);
+            border-color: #4b5563;
+            transform: translateY(-1px);
+        }
+
+        .channel-item.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-hover));
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+
+        .channel-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .channel-name::before {
+            content: "▶";
+            font-size: 0.6rem;
+            opacity: 0.5;
+        }
+
+        .active .channel-name::before {
+            opacity: 1;
+            color: #fff;
+        }
+
+        .channel-res {
+            font-size: 0.7rem;
+            font-weight: 600;
+            background: rgba(0,0,0,0.4);
+            padding: 4px 8px;
+            border-radius: 4px;
+            letter-spacing: 0.5px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            background: radial-gradient(circle at top right, #1e1b4b 0%, var(--bg-color) 40%);
+        }
+
+        .player-wrapper {
+            max-width: 1200px;
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .player-container {
+            width: 100%;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+        }
+
+        video {
+            width: 100%;
+            aspect-ratio: 16/9;
+            display: block;
+            outline: none;
+        }
+
+        .now-playing-card {
+            background: var(--panel-bg);
+            padding: 16px 20px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .now-playing-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .live-badge {
+            background-color: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            animation: pulse 2s infinite;
+            text-transform: uppercase;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 6px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .now-playing-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #f8fafc;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                height: 45vh;
+                border-right: none;
+                border-bottom: 1px solid var(--border);
+            }
+            .app-brand { padding: 12px 15px; }
+            .main-content {
+                height: 55vh;
+                padding: 12px;
+            }
+            .now-playing-card { flex-direction: column; align-items: flex-start; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="app-brand">
+            <div class="brand-icon">📺</div>
+            <div class="brand-text">Bangladesh Stream {BDTV}</div>
+        </div>
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="চ্যানেল খুঁজুন...">
+        </div>
+        <div class="channel-list" id="channelList"></div>
+    </div>
+
+    <div class="main-content">
+        <div class="player-wrapper">
+            <div class="player-container">
+                <video id="video" controls autoplay></video>
+            </div>
+            
+            <div class="now-playing-card">
+                <div class="now-playing-info">
+                    <span class="live-badge">Live</span>
+                    <span class="now-playing-text" id="nowPlaying">চ্যানেল নির্বাচন করুন</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const channels = [
+            {
+                name: "Ananda TV",
+                urls: [
+                    { res: "1080p", url: "https://bozztv.com/rongo/rongo-AnandaTV/index.m3u8" },
+                    { res: "720p", url: "https://tvsen6.aynaott.com/anandatv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Channel 24",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1703/output/index.m3u8" }
+                ]
+            },
+            {
+                name: "Nexus Television",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/nexustv/index.m3u8" }
+                ]
+            },
+            {
+                name: "BTV National",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1709/output/1709.m3u8" },
+                    { res: "720p", url: "https://tvsen6.aynaott.com/btvhd/index.m3u8" }
+                ]
+            },
+            {
+                name: "BTV World",
+                urls: [
+                    { res: "1080p", url: "https://www.btvlive.gov.bd/streams/ef8b8bbc-98b7-4ba7-a49d-a0adaf259d35/ES/d96eb7f4-83c2-4472-9597-3568390a8ebf/d96eb7f4-83c2-4472-9597-3568390a8ebf_3_playlist.m3u8" },
+                    { res: "720p", url: "https://tvsen6.aynaott.com/btv_world/index.m3u8" }
+                ]
+            },
+            {
+                name: "BTV News",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/BTVNews/index.m3u8" }
+                ]
+            },
+            {
+                name: "Channel I",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1723/output/index.m3u8" },
+                    { res: "720p", url: "https://tvsen6.aynaott.com/channeli/index.m3u8" }
+                ]
+            },
+            {
+                name: "NTV",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1716/output/index.m3u8" },
+                    { res: "720p", url: "https://tvsen5.aynaott.com/xV4jEKf3D9zc/index.m3u8" }
+                ]
+            },
+            {
+                name: "RTV",
+                urls: [
+                    { res: "1080p", url: "https://bozztv.com/rongo/rongo-RTV/index.m3u8" },
+                    { res: "720p", url: "https://tvsen5.aynaott.com/RtvHD/index.m3u8" }
+                ]
+            },
+            {
+                name: "Jamuna TV",
+                urls: [
+                    { res: "1080p", url: "https://bozztv.com/rongo/rongo-JamunaTelevision/index.m3u8" },
+                    { res: "720p", url: "https://tvsen6.aynaott.com/jamunatv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Somoy News",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1702/output/index.m3u8" },
+                    { res: "720p", url: "https://tvsen6.aynaott.com/somoytv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Independent TV",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1704/output/1704.m3u8" },
+                    { res: "720p", url: "https://tvsen6.aynaott.com/independenttv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Ekattor TV",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1705/output/1705.m3u8" },
+                    { res: "720p", url: "https://tvsen6.aynaott.com/ekattorbdtv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Ekhon TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/ekhontv/index.m3u8" }
+                ]
+            },
+            {
+                name: "ATN Bangla",
+                urls: [
+                    { res: "720p", url: "https://tvsen5.aynaott.com/atnbangla/index.m3u8" }
+                ]
+            },
+            {
+                name: "ATN News",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1706/output/1706.m3u8" }
+                ]
+            },
+            {
+                name: "Bangla Vision",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1715/output/index.m3u8" },
+                    { res: "720p", url: "https://tvsen5.aynaott.com/banglavision/index.m3u8" }
+                ]
+            },
+            {
+                name: "Deepto TV",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1711/output/index.m3u8" },
+                    { res: "720p", url: "https://tvsen5.aynaott.com/DeeptoTVHD/index.m3u8" }
+                ]
+            },
+            {
+                name: "Maasranga TV",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1722/output/index.m3u8" },
+                    { res: "720p", url: "https://tvsen5.aynaott.com/maasrangatv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Channel 9",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1729/output/index.m3u8" },
+                    { res: "720p", url: "https://tvsen6.aynaott.com/channel9/index.m3u8" }
+                ]
+            },
+            {
+                name: "DBC News",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1728/output/index.m3u8" },
+                    { res: "720p", url: "https://tvsen6.aynaott.com/dbcnews/index.m3u8" }
+                ]
+            },
+            {
+                name: "Star News",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1710/output/index.m3u8" }
+                ]
+            },
+            {
+                name: "News 24",
+                urls: [
+                    { res: "1080p", url: "https://owrcovcrpy.gpcdn.net/bpk-tv/1708/output/1708.m3u8" },
+                    { res: "720p", url: "https://tvsen6.aynaott.com/news24/index.m3u8" }
+                ]
+            },
+            {
+                name: "Boishakhi TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/boishakhitv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Ekushey TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/etv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Desh TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/deshtv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Green TV",
+                urls: [
+                    { res: "1080p", url: "https://app.ncare.live/c3VydmVyX8RpbEU9Mi8xNy8yMDE0GIDU6RgzQ6NTAgdEoaeFzbF92YWxIZTO0U0ezN1IzMyfvcGVMZEJCTEFWeVN3PTOmdFsaWRtaW51aiPhnPTI2/greentv.stream/live-orgin/greentv.stream/playlist.m3u8" }
+                ]
+            },
+            {
+                name: "Gazi TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen5.aynaott.com/Ravc7gPCZpxk/index.m3u8" }
+                ]
+            },
+            {
+                name: "Asian TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/asiantv/index.m3u8" }
+                ]
+            },
+            {
+                name: "SA TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/satv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Bangla TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/banglatv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Bijoy TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/bijoytv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Global TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/globaltvhd/index.m3u8" }
+                ]
+            },
+            {
+                name: "My TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/mytv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Mohona TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/mohonatv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Nagorik TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/nagoriktv/index.m3u8" }
+                ]
+            },
+            {
+                name: "Duronto TV",
+                urls: [
+                    { res: "720p", url: "https://tvsen6.aynaott.com/durontotv-live/index.m3u8" }
+                ]
+            },
+            {
+                name: "Deshi TV",
+                urls: [
+                    { res: "720p", url: "https://deshitv.deshitv24.net/live/myStream/playlist.m3u8" }
+                ]
+            },
+            {
+                name: "T Sports",
+                urls: [
+                    { res: "720p", url: "https://tvsen7.aynaott.com/tsports-hd/index.m3u8" },
+                    { res: "720p", url: "https://tvsen7.aynaott.com/tsportsfhd/index.m3u8" }
+                ]
+            },
+            
+        ];
+
+        const video = document.getElementById('video');
+        const channelList = document.getElementById('channelList');
+        const nowPlaying = document.getElementById('nowPlaying');
+        const searchInput = document.getElementById('searchInput');
+
+        let hls = null;
+        let currentChannelObj = null;
+        let urlIndex = 0;
+        let fallbackTimer = null;
+
+        function clearPlayer() {
+            if (hls) {
+                hls.destroy();
+                hls = null;
+            }
+            video.pause();
+            video.removeAttribute('src');
+            if (fallbackTimer) {
+                clearTimeout(fallbackTimer);
+                fallbackTimer = null;
+            }
+        }
+
+        function attemptLoad() {
+            if (!currentChannelObj || urlIndex >= currentChannelObj.urls.length) {
+                nowPlaying.innerHTML = '<span style="color:#ef4444;">সব লিংক ব্যর্থ হয়েছে। চ্যানেল পরিবর্তন করুন।</span>';
+                return;
+            }
+
+            const { url, res } = currentChannelObj.urls[urlIndex];
+            nowPlaying.innerHTML = `চেষ্টা করা হচ্ছে: <span style="color: #60a5fa">${currentChannelObj.name}</span> <span class="channel-res" style="background:#374151;">${res}</span>`;
+
+            clearPlayer();
+
+            if (Hls.isSupported()) {
+                hls = new Hls({
+                    capLevelToPlayerSize: true,
+                    maxBufferLength: 30,
+                    manifestLoadTimeOut: 10000,
+                    levelLoadTimeOut: 10000
+                });
+                hls.loadSource(url);
+                hls.attachMedia(video);
+
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    if (fallbackTimer) clearTimeout(fallbackTimer);
+                    video.play().catch(e => console.log("Autoplay error:", e));
+                    nowPlaying.innerHTML = `<span style="color: #4ade80;">Play হচ্ছে:</span> ${currentChannelObj.name} <span class="channel-res">${res}</span>`;
+                });
+
+                hls.on(Hls.Events.ERROR, (event, data) => {
+                    if (data.fatal) {
+                        urlIndex++;
+                        attemptLoad();
+                    }
+                });
+
+                fallbackTimer = setTimeout(() => {
+                    urlIndex++;
+                    attemptLoad();
+                }, 12000);
+
+            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url;
+                video.addEventListener('loadedmetadata', () => {
+                    if (fallbackTimer) clearTimeout(fallbackTimer);
+                    video.play();
+                    nowPlaying.innerHTML = `<span style="color: #4ade80;">Play হচ্ছে:</span> ${currentChannelObj.name} <span class="channel-res">${res}</span>`;
+                }, { once: true });
+                video.addEventListener('error', () => {
+                    urlIndex++;
+                    attemptLoad();
+                }, { once: true });
+                fallbackTimer = setTimeout(() => {
+                    urlIndex++;
+                    attemptLoad();
+                }, 12000);
+            } else {
+                nowPlaying.innerHTML = '<span style="color:#ef4444;">আপনার ব্রাউজার HLS সাপোর্ট করে না।</span>';
+            }
+        }
+
+        function loadStream(channelObj) {
+            currentChannelObj = channelObj;
+            urlIndex = 0;
+            attemptLoad();
+        }
+
+        function renderChannels(list) {
+            channelList.innerHTML = '';
+            list.forEach(channel => {
+                const div = document.createElement('div');
+                div.className = 'channel-item';
+                const firstRes = channel.urls[0]?.res || '?';
+                div.innerHTML = `<span class="channel-name">${channel.name}</span>
+                                 <span class="channel-res">${firstRes}</span>`;
+                div.onclick = () => {
+                    document.querySelectorAll('.channel-item').forEach(el => el.classList.remove('active'));
+                    div.classList.add('active');
+                    loadStream(channel);
+                };
+                channelList.appendChild(div);
+            });
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            const filtered = channels.filter(c => c.name.toLowerCase().includes(query));
+            renderChannels(filtered);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderChannels(channels);
+            if (channels.length > 0) {
+                channelList.firstChild.classList.add('active');
+                loadStream(channels[0]);
+            }
+        });
+    </script>
+</body>
+</html>
